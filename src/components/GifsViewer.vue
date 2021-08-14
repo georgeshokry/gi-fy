@@ -43,7 +43,10 @@
                     align="center"
                     justify="center"
                   >
-                  <img height="auto" width="auto" src="@/assets/giphy.gif"/>
+                    <v-progress-circular
+                      indeterminate
+                      color="purple darken-4"
+                    ></v-progress-circular>
                   </v-row>
                 </template>
               </v-img>
