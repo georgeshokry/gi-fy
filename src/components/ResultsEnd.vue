@@ -1,13 +1,13 @@
 <template>
   <v-container fluid class="pa-2">
-    <v-row class="results-end__loading-more" justify="center">
+    <v-row class="results-end__loading-more" justify="center" v-intersect="onIntersect">
           <v-progress-linear
             v-if="!getFinalPage"
             color="purple darken-4"
             indeterminate
             rounded
             height="6"
-            v-intersect="onIntersect"
+            
           ></v-progress-linear>
           <v-expand-transition>
               <v-card
@@ -28,6 +28,18 @@
                 src="https://media.giphy.com/media/5bo7UYW69cYQZA4tOF/giphy.gif"
               >
               </v-img>
+                <v-card-actions>
+                    <v-btn
+                        v-if="getkeyword"
+                        
+                        outlined
+                        color="white"
+                        @click="resetSearch()"
+                        elevation="2"
+                    >
+                        Clear Search
+                    </v-btn>
+                </v-card-actions>
             </v-card>
           </v-expand-transition>
     </v-row>
@@ -39,13 +51,22 @@ export default {
     name: 'ResultsEnd',
     data: () => ({
     }),
-    computed: mapGetters(["getFinalPage"]),
+    computed: mapGetters(["getFinalPage", "getkeyword", "getLoadingState"]),
     methods:{
-        async onIntersect () {
-            if(!this.getLoadingState) {
-                await this.$store.dispatch('fetchTrendingGifs')
+         onIntersect () {
+             console.log("GGGGG", this.getFinalPage)
+            if(!this.getFinalPage && !this.getLoadingState){ //it may reached final page
+                    if(this.getkeyword){//check if user search gifs then load gifs by keyword
+                        this.$store.dispatch('fetchGifsBySuggetion', this.getkeyword)
+                    }else{
+                        this.$store.dispatch('fetchTrendingGifs')
+                    }
             }
         },
+        resetSearch(){
+            this.$store.dispatch('resetSearch')
+            this.$store.dispatch('resetSearchKeyword')
+        }
     }
 };
 </script>

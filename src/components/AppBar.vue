@@ -8,7 +8,8 @@
     <v-row no-gutters>
         <v-col
             cols="6"
-            md="4"
+            md="5"
+            sm="5"
              class="d-flex align-content-center flex-wrap"
         >
             <div  class="d-flex align-content-center flex-wrap">
@@ -32,8 +33,8 @@
         >
             <v-autocomplete
                 v-model="searchText"
-                :items="items"
-                :loading="isLoading"
+                :items="getSuggestions"
+                :loading="getLoadingSuggestions"
                 :search-input.sync="search"
                 color="white"
                 hide-selected
@@ -41,25 +42,57 @@
                 prepend-icon="mdi-magnify"
                 return-object
                 dense
-                filled
                 rounded
                 class="pt-5"
-            ></v-autocomplete>
+                clearable
+                :append="resetSearch"
+            >
+
+            </v-autocomplete>
         </v-col>
        </v-row>
     </v-app-bar>
 </template>
 <script>
+import { mapGetters } from "vuex";
 export default {
   name: 'AppBar',
   data: () => ({
       searchText: '',
-      items: [],
       isLoading: false,
+      search: ''
 
   }),
+  computed: mapGetters(["getLoadingSuggestions", "getSuggestions"]),
   created(){
 
+  },
+  watch:{
+    search (val) {
+        this.fetchSuggestions(val)
+    },
+    searchText(val){
+        this.fetchGifsBySuggetion(val)
+    }
+  },
+  methods:{
+      fetchSuggestions(val){
+        if(!this.getLoadingSuggestions && val){
+            this.$store.dispatch("fetchSuggestions", val);
+        }
+      },
+      async fetchGifsBySuggetion(val){
+          this.$vuetify.goTo(0)
+          if(val){
+              this.$store.dispatch('resetGifs');
+              await this.$store.dispatch('fetchGifsBySuggetion', val)
+          }else{
+              this.resetSearch();
+          }
+      },
+      resetSearch(){
+          this.$store.dispatch('resetSearch')
+      }
   }
 };
 </script>
