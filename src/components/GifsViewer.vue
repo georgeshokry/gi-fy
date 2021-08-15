@@ -9,7 +9,7 @@
         v-masonry
         class="mb-5"
       >
-        <v-col lg="2" class="image-div" v-for="(item, index) in getTrendingGifs" :key="index">
+        <v-col lg="2"  v-for="(item, index) in getTrendingGifs" :key="index">
           <v-lazy
               :options="{
                 threshold: .9
@@ -28,15 +28,15 @@
                     <v-tooltip top>
                     <template v-slot:activator="{ on, attrs }" >
                       <v-icon
-                        class="gifs-viewer__link-icon"
-                        color="white darken-2"
-                        v-bind="attrs"
-                        v-on="on"
-                        @click="copyLink(item)"
-                      >
-                        mdi-link-variant
-                      </v-icon>
-                      </template>
+                          class="gifs-viewer__link-icon"
+                          color="purple darken-4"
+                          v-bind="attrs"
+                          v-on="on"
+                          @click="openDetailsDialog(item)"
+                        >
+                          mdi-information
+                        </v-icon>
+                    </template>
                       <span>{{copied ? 'link copied!' : 'click to copy!'}}</span>
                     </v-tooltip>
                   </div>
@@ -57,16 +57,23 @@
           </v-lazy>
         </v-col>
     </v-row>
+    <gif-info :openDetails="openDetails" :gifInfoObject="gifInfoObject" @closeDialog="closeDialog"/>
   </v-container>
 </template>
 
 <script>
 import { mapGetters } from "vuex";
+import GifInfo from './GifInfo.vue';
+import imageLink from '@/mixins/imageLink.js';
   export default {
+  components: { GifInfo },
     name: 'GifsViewer',
+    mixins: [imageLink],
     data: () => ({
       hoveredItemIndex: null,
-      copied: false
+      copied: false,
+      openDetails: false,
+      gifInfoObject: {}
     }),
     computed: mapGetters(["getTrendingGifs", "getLoadingState", "getFinalPage", "getkeyword"]),
     async created(){
@@ -79,25 +86,13 @@ import { mapGetters } from "vuex";
       removeActions(){
         this.hoveredItemIndex = null;
       },
-
-      getImageSrc(imageObject){
-        if(Object.keys(imageObject).length > 0){ //some times the api remove attributes so need to check 
-          if(imageObject.preview_webp){
-            return imageObject.preview_webp.url
-          }else if(imageObject.downsized_medium){
-            return imageObject.downsized_medium.url
-          }
-        }
+      openDetailsDialog(imageOpeject){
+        this.gifInfoObject = imageOpeject;
+        this.openDetails = true;
       },
-      copyLink(item){
-        if(item.url){
-          const cb = navigator.clipboard;
-          cb.writeText(item.url).then(() => {this.copied = true});
-          setTimeout(()=>{
-            this.copied = false
-          }, 3000)
-        }
-      }
+      closeDialog(){
+        this.openDetails = false;
+      },
     }
 
   }
@@ -105,7 +100,7 @@ import { mapGetters } from "vuex";
 <style scoped>
 .gifs-viewer__link{
   background: rgb(2,0,36);
-  background: linear-gradient(340deg, rgba(2,0,36,1) 0%, rgba(74,20,140,0) 60%, rgb(0 212 255 / 0%) 100%);
+  background: linear-gradient(340deg, rgb(255 255 255) 0%, rgba(74,20,140,0) 60%, rgb(0 212 255 / 0%) 100%);
   width: 100%;
   height: 100%;
 }
