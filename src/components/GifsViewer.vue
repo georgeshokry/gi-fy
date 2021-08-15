@@ -1,5 +1,10 @@
 <template>
   <v-container fluid>
+    <v-sheet
+      class="pa-3"
+    >
+    <div class="headline ">{{getkeyword ? `Search result for "${getkeyword}" ` : "Trending"}}</div>
+    </v-sheet>
     <v-row
         v-masonry
         class="mb-5"
@@ -27,33 +32,31 @@
                         color="white darken-2"
                         v-bind="attrs"
                         v-on="on"
+                        @click="copyLink(item)"
                       >
                         mdi-link-variant
                       </v-icon>
                       </template>
-                      <span>click to copy!</span>
+                      <span>{{copied ? 'link copied!' : 'click to copy!'}}</span>
                     </v-tooltip>
                   </div>
               </template>
               
                 <template v-slot:placeholder>
-                  
-                  <v-row
-                    class="fill-height ma-0"
-                    align="center"
-                    justify="center"
-                  >
-                    <v-progress-circular
-                      indeterminate
-                      color="purple darken-4"
-                    ></v-progress-circular>
-                  </v-row>
+                    <v-sheet
+                      class="pa-3"
+                    >
+                      <v-skeleton-loader
+                        class="mx-auto"
+                        max-width="300"
+                        type="image"
+                      ></v-skeleton-loader>
+                    </v-sheet>
                 </template>
               </v-img>
           </v-lazy>
         </v-col>
     </v-row>
-
   </v-container>
 </template>
 
@@ -62,9 +65,10 @@ import { mapGetters } from "vuex";
   export default {
     name: 'GifsViewer',
     data: () => ({
-      hoveredItemIndex: null
+      hoveredItemIndex: null,
+      copied: false
     }),
-    computed: mapGetters(["getTrendingGifs", "getLoadingState", "getFinalPage"]),
+    computed: mapGetters(["getTrendingGifs", "getLoadingState", "getFinalPage", "getkeyword"]),
     async created(){
       await this.$store.dispatch('fetchTrendingGifs')
     },
@@ -83,6 +87,15 @@ import { mapGetters } from "vuex";
           }else if(imageObject.downsized_medium){
             return imageObject.downsized_medium.url
           }
+        }
+      },
+      copyLink(item){
+        if(item.url){
+          const cb = navigator.clipboard;
+          cb.writeText(item.url).then(() => {this.copied = true});
+          setTimeout(()=>{
+            this.copied = false
+          }, 3000)
         }
       }
     }

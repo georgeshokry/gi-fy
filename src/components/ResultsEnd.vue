@@ -1,13 +1,13 @@
 <template>
   <v-container fluid class="pa-2">
-    <v-row class="results-end__loading-more" justify="center" v-intersect="onIntersect">
+    <v-row class="results-end__loading-more" justify="center" >
           <v-progress-linear
             v-if="!getFinalPage"
             color="purple darken-4"
             indeterminate
             rounded
             height="6"
-            
+            v-intersect="onIntersect"
           ></v-progress-linear>
           <v-expand-transition>
               <v-card

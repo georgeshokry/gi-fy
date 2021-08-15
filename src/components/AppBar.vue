@@ -91,7 +91,8 @@ export default {
           }
       },
       resetSearch(){
-          this.$store.dispatch('resetSearch')
+            this.$store.dispatch('resetSearch');
+            this.$store.dispatch('resetSearchKeyword');
       }
   }
 };
